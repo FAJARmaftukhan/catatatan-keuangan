@@ -1,0 +1,383 @@
+`catatan-keuangan.html`
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catatan Keuangan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #007bff, #ffffff);
+            color: #333;
+            position: relative;
+        }
+        header, #login-page, #main-page {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        header h1 {
+            font-size: 3rem;
+            margin: 0 0 10px 0;
+            color: #004085;
+        }
+        header h2 {
+            font-size: 1.2rem;
+            margin: 0 0 20px 0;
+            color: #0069d9;
+        }
+        header img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+        .copyright {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: #003366;
+            font-weight: bold;
+            user-select: none;
+        }
+        button.login-button {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        button.login-button:hover {
+            background-color: #0056b3;
+        }
+        #login-page input[type="email"],
+        #login-page input[type="password"],
+        #main-page input, #main-page select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1.5px solid #007bff;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            color: #004085;
+        }
+        #main-page h2 {
+            margin-bottom: 20px;
+            color: #004085;
+        }
+        .hamburger {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #004085;
+            user-select: none;
+        }
+        .menu {
+            position: fixed;
+            top: 50px;
+            left: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            width: 180px;
+            display: none;
+            z-index: 10;
+        }
+        .menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #004085;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid #eaeaea;
+            user-select: none;
+        }
+        .menu a:last-child {
+            border-bottom: none;
+        }
+        .menu a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        #main-page form {
+            text-align: left;
+        }
+        #main-page label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #004085;
+        }
+        #main-page input[type="number"] {
+            -moz-appearance:textfield;
+        }
+        #main-page input::-webkit-outer-spin-button,
+        #main-page input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #records-table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+        #records-table th, #records-table td {
+            border: 1px solid #007bff;
+            padding: 8px;
+            text-align: left;
+            color: #004085;
+        }
+        #records-table th {
+            background-color: #cce5ff;
+        }
+        #summary {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #004085;
+        }
+        .amount-positive {
+            color: #28a745;
+        }
+        .amount-negative {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Halaman Awal -->
+    <header id="home-page">
+        <h1>CATATAN KEUANGAN</h1>
+        <h2>DATA ANDA AMAN DISINI</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/4016/4016552.png" alt="Ikon Uang" />
+        <button class="login-button" onclick="showLoginPage()">Login</button>
+    </header>
+
+    <!-- Halaman Login -->
+    <section id="login-page" style="display:none;">
+        <form onsubmit="event.preventDefault(); loginUser();">
+            <h2>Login</h2>
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="password" id="password" placeholder="Password" required />
+            <button type="submit" class="login-button">Mulai</button>
+        </form>
+        <div class="copyright">COPYRIGHT KELOMPOK 4</div>
+    </section>
+
+    <!-- Halaman Utama -->
+    <section id="main-page" style="display:none;">
+        <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
+        <nav id="menu" class="menu" style="display:none;">
+            <a href="#" onclick="logoutUser()">Logout</a>
+            <a href="#" onclick="alert('Fitur pengaturan akun belum tersedia')">Setelan Akun</a>
+        </nav>
+
+        <h2>Catat Keuangan</h2>
+        <form id="finance-form" onsubmit="event.preventDefault(); addRecord();">
+            <label for="type">Tipe</label>
+            <select id="type" required>
+                <option value="income">Pemasukan</option>
+                <option value="expense">Pengeluaran</option>
+            </select>
+            <label for="description">Keterangan</label>
+            <input type="text" id="description" placeholder="Misal: Gaji, belanja, dll" required />
+            <label for="amount">Jumlah (Rp)</label>
+            <input type="number" id="amount" min="0.01" step="0.01" placeholder="Masukkan jumlah uang" required />
+            <button type="submit" class="login-button">Tambah</button>
+        </form>
+
+        <table id="records-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Tipe</th>
+                    <th>Keterangan</th>
+                    <th>Jumlah (Rp)</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="summary"></div>
+        <div class="copyright">COPYRIGHT KELOMPOK 4</div>
+    </section>
+
+<script>
+    // Global data to store records
+    let financeRecords = [];
+
+    function showLoginPage() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('login-page').style.display = 'block';
+        document.getElementById('main-page').style.display = 'none';
+    }
+
+    function showMainPage() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('main-page').style.display = 'block';
+        loadRecords();
+        renderRecords();
+    }
+
+    function loginUser() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        // Simple dummy login check (accept any non-empty inputs)
+        if(email && password) {
+            // Save login state
+            localStorage.setItem('isLoggedIn', 'true');
+            // Save email (optional)
+            localStorage.setItem('userEmail', email);
+            showMainPage();
+        } else {
+            alert('Mohon isi Email dan Password dengan benar.');
+        }
+    }
+
+    function logoutUser() {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userEmail');
+        financeRecords = [];
+        saveRecords();
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('main-page').style.display = 'none';
+        document.getElementById('login-page').style.display = 'block';
+    }
+
+    function toggleMenu() {
+        const menu = document.getElementById('menu');
+        if(menu.style.display === 'block') {
+            menu.style.display = 'none';
+        } else {
+            menu.style.display = 'block';
+        }
+    }
+
+    function addRecord() {
+        const type = document.getElementById('type').value;
+        const description = document.getElementById('description').value.trim();
+        const amountInput = document.getElementById('amount');
+        const amount = parseFloat(amountInput.value);
+
+        if (!description || isNaN(amount) || amount <= 0) {
+            alert('Mohon isi semua data dengan benar.');
+            return;
+        }
+        const today = new Date();
+        const date = today.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        financeRecords.push({ date, type, description, amount: parseFloat(amount.toFixed(2)) });
+        saveRecords();
+        renderRecords();
+
+        // Reset form
+        document.getElementById('finance-form').reset();
+    }
+
+    function saveRecords() {
+        localStorage.setItem('financeRecords', JSON.stringify(financeRecords));
+    }
+
+    function loadRecords() {
+        const data = localStorage.getItem('financeRecords');
+        financeRecords = data ? JSON.parse(data) : [];
+    }
+
+    function renderRecords() {
+        const tbody = document.querySelector('#records-table tbody');
+        tbody.innerHTML = '';
+
+        financeRecords.forEach((rec, index) => {
+            const tr = document.createElement('tr');
+
+            const tdDate = document.createElement('td');
+            tdDate.textContent = rec.date;
+            tr.appendChild(tdDate);
+
+            const tdType = document.createElement('td');
+            tdType.textContent = rec.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+            tr.appendChild(tdType);
+
+            const tdDesc = document.createElement('td');
+            tdDesc.textContent = rec.description;
+            tr.appendChild(tdDesc);
+
+            const tdAmount = document.createElement('td');
+            tdAmount.textContent = formatRupiah(rec.amount);
+            tdAmount.style.color = rec.type === 'income' ? '#28a745' : '#dc3545';
+            tr.appendChild(tdAmount);
+
+            const tdAction = document.createElement('td');
+            const btnDelete = document.createElement('button');
+            btnDelete.textContent = 'Hapus';
+            btnDelete.style.backgroundColor = '#dc3545';
+            btnDelete.style.color = 'white';
+            btnDelete.style.border = 'none';
+            btnDelete.style.borderRadius = '4px';
+            btnDelete.style.padding = '4px 8px';
+            btnDelete.style.cursor = 'pointer';
+            btnDelete.onclick = () => {
+                if(confirm('Yakin ingin menghapus data ini?')) {
+                    financeRecords.splice(index,1);
+                    saveRecords();
+                    renderRecords();
+                }
+            };
+            tdAction.appendChild(btnDelete);
+            tr.appendChild(tdAction);
+
+            tbody.appendChild(tr);
+        });
+
+        renderSummary();
+    }
+
+    function renderSummary() {
+        const totalIncome = financeRecords.reduce((sum, r) => r.type === 'income' ? sum + r.amount : sum, 0);
+        const totalExpense = financeRecords.reduce((sum, r) => r.type === 'expense' ? sum + r.amount : sum, 0);
+        const balance = totalIncome - totalExpense;
+        const summaryEl = document.getElementById('summary');
+        summaryEl.innerHTML = `
+            Total Pemasukan: <span style="color:#28a745;">${formatRupiah(totalIncome)}</span> |
+            Total Pengeluaran: <span style="color:#dc3545;">${formatRupiah(totalExpense)}</span> |
+            Saldo: <strong>${formatRupiah(balance)}</strong>
+        `;
+    }
+
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    // Saat halaman dimuat, cek login dan tampilkan halaman sesuai
+    window.onload = function() {
+        if(localStorage.getItem('isLoggedIn') === 'true') {
+            showMainPage();
+        } else {
+            document.getElementById('home-page').style.display = 'block';
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-page').style.display = 'none';
+        }
+    };
+</script>
+
+</body>
+</html>
+
+```
+
